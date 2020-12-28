@@ -441,3 +441,52 @@ Door opened!
 
 Nice
 
+## Proxmark (HID Lock)
+<i> This is completed using the actual proxmark CLI and not the "Become Santa" hack you can use</i>
+
+After completing the phone challenge, Fitzy Shortstack states 
+
+>You know, Santa really seems to trust Shinny Upatree...
+
+Interesting. First, we need to go to the workshop, head to the back room and you will find your Proxmark3, which can be opened in our inventory to access the Proxmark CLI. 
+
+Bushy Evergreen also gives us another, hint - 
+
+>You can use a Proxmark to capture the facility code and ID value of HID ProxCard badge by running `lf hid read` when you are close enough to someone with a badge.
+
+So lets try this out on good ole' Shiny! 
+
+We head to the Courtyard, get real close to Shiny, and open the CLI. Lets see what running the command in the hint results in.
+
+```
+[magicdust] pm3 --> lf hid read
+
+#db# TAG ID: 2006e22f13 (6025) - Format Len: 26 bit - FC: 113 - Card: 6025
+[magicdust] pm3 --> 
+```
+
+Sanity check, what does running that command in another room produce?
+
+```
+[magicdust] pm3 --> lf hid read
+[magicdust] pm3 -->
+```
+Nada!
+
+Alright cool now we need to actually simulate that reading, so once we get to the Workshop and get near the door, we wanna run the following:
+```
+lf hid sim -r 2006e22f13
+```
+
+And the door opens!
+
+## Congrats! You are Half Way done!
+
+By this point, you are probably santa. Lets take a look at the objectives now!
+
+## Splunk Challenge - 
+
+I already ran accross this when passing through the Great Room, again we are going to trigger it via becoming santa through the "??" area and not the actual hack.
+
+Navigating to the terminal we get the "Santa's SOC Challenge". A word about this challenge: It's not actually that hard. That being said, <b> it will be very hard </b> if you have never done anything with Splunk before and if you dont watch the provided links as well as basic splunk tutorials on YouTube.
+
