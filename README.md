@@ -1,3 +1,212 @@
+# Kringlecon2020
+
+## Challenges
+
+### Uncover Santa's Gift List
+
+Talk to JingleRingford and he points you in the direction of the Billboard and recommends Photopea and something called Lasso...
+
+Also mentions Filtering Distortion
+
+### Terminal Injection
+
+Option 4, then `; /bin/bash` 
+
+```
+Enter choice [1 - 5] 4
+Enter your name (Please avoid special characters, they cause some weird errors)...; /bin/bash
+ _______________________
+< Santa's Little Helper >
+ -----------------------
+  \
+   \   \_\_    _/_/
+    \      \__/
+           (oo)\_______
+           (__)\       )\/\
+               ||----w |
+               ||     ||
+
+   ___                                                      _    
+  / __|   _  _     __      __      ___     ___     ___     | |   
+  \__ \  | +| |   / _|    / _|    / -_)   (_-<    (_-<     |_|   
+  |___/   \_,_|   \__|_   \__|_   \___|   /__/_   /__/_   _(_)_  
+_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_| """ | 
+"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-' 
+```
+
+
+### Investigate S3 Bucket
+
+1/5 Difficulty
+
+When you unwrap the over-wrapped file, what text string is inside the package? Talk to Shinny Upatree in front of the castle for hints on this challenge.
+
+/etc/motd included a reference to Wrapper3000
+
+```
+Can you help me? Santa has been experimenting with new wrapping technology, and
+we've run into a ribbon-curling nightmare!
+We store our essential data assets in the cloud, and what a joy it's been!
+Except I don't remember where, and the Wrapper3000 is on the fritz!
+
+Can you find the missing package, and unwrap it all the way?
+
+Hints: Use the file command to identify a file type. You can also examine
+tool help using the man command. Search all man pages for a string such as
+a file extension using the apropos command.
+
+To see this help again, run cat /etc/motd.
+```
+
+wrapper3000 was a valid bucket!
+
+./bucketfinder.rb wordlist
+
+package contents look like... 
+
+```
+UEsDBAoAAAAAAIAwhFEbRT8anwEAAJ8BAAAcABwAcGFja2FnZS50eHQuWi54ei54eGQudGFyLmJ6MlVUCQADoBfKX6AXyl91eAsAAQT2AQAABBQAAABCWmg5MUFZJlNZ2ktivwABHv+Q3hASgGSn//AvBxDwf/xe0gQAAAgwAVmkYRTKe1PVM9U0ekMg2poAAAGgPUPUGqehhCMSgaBoAD1NNAAAAyEmJpR5QGg0bSPU/VA0eo9IaHqBkxw2YZK2NUASOegDIzwMXMHBCFACgIEvQ2Jrg8V50tDjh61Pt3Q8CmgpFFunc1Ipui+SqsYB04M/gWKKc0Vs2DXkzeJmiktINqjo3JjKAA4dLgLtPN15oADLe80tnfLGXhIWaJMiEeSX992uxodRJ6EAzIFzqSbWtnNqCTEDML9AK7HHSzyyBYKwCFBVJh17T636a6YgyjX0eE0IsCbjcBkRPgkKz6q0okb1sWicMaky2Mgsqw2nUm5ayPHUeIktnBIvkiUWxYEiRs5nFOM8MTk8SitV7lcxOKst2QedSxZ851ceDQexsLsJ3C89Z/gQ6Xn6KBKqFsKyTkaqO+1FgmImtHKoJkMctd2B9JkcwvMr+hWIEcIQjAZGhSKYNPxHJFqJ3t32Vjgn/OGdQJiIHv4u5IpwoSG0lsV+UEsBAh4DCgAAAAAAgDCEURtFPxqfAQAAnwEAABwAGAAAAAAAAAAAAKSBAAAAAHBhY2thZ2UudHh0LloueHoueHhkLnRhci5iejJVVAUAA6AXyl91eAsAAQT2AQAABBQAAABQSwUGAAAAAAEAAQBiAAAA9QEAAAAA
+```
+
+
+Running that through cyberchef using b64 decode and then unzip gives us
+
+```package.txt.Z.xz.xxd.tar.bz2```
+package.txt.Z.xz.xxd.tar.bz2
+
+So we download the file
+
+```
+base64 -d package > test.zip
+```
+
+then 
+
+```
+unzip test.zip
+```
+
+then unzip via 7zip
+
+Now we have an xxd file, which is a linux HexDump so lets see what the manpages have to say
+
+https://www.tutorialspoint.com/unix_commands/xxd.htm
+
+
+Hmm so lets try and revert this thing
+
+`xxd -r package.txt.Z.xz.xxd > package.txt.Z.xz`
+
+WinRAR should take care of the rest!
+
+```
+cat package.txt
+North Pole: The Frostiest Place on Earth
+```
+
+### Terminal escape
+
+tmux is pretty easy,  I actually knew this one right away
+
+```
+tmux list sessions
+```
+Shows there is one session, session 0 so lets attach!
+
+```
+tmux attach-session -t 0
+```
+
+Done!
+
+### Courtyard Linux
+
+Again more generic linux commands to work on! Not worth posting here since theyre all pretty basic
+
+### Point of Sale Recovery
+
+So the objective here is extracting an ASAR from a binary
+
+First, download the EXE 
+
+Next we will use the npn ASAR package, this gives us a quick explanation of what the ASAR is 
+
+
+```
+Asar is a simple extensive archive format, it works like tar that concatenates all files together without compression, while having random access support.
+
+```
+After banging my head against a wall for a while, I ran `file` on the exe it gives you which ends up being an NSIS which can be extracted using 7Zip
+
+Then we can extract it, head over to the asar file, and follow this tutorial
+https://medium.com/how-to-electron/how-to-get-source-code-of-any-electron-application-cbb5c7726c37
+
+`santapass` :)
+
+### 33.6kbps
+
+Same idea as the Santavator, though I will admit I spent a few minutes trying to figure out how to do the dumb phone sound thing. If we didn't want to try and hack this one, the objective is to dial a phone number on the fake phone and then play a series of sounds to imitate a dial-up handshake sequene. The main problem is the sounds are out of order and you have to punch them in, not only in the correct order but also in the given timeframe. That sucks, lets see if we can find an easier way in.
+
+The idea here is that again we have a challenge that presents all the means to beating it on the client side, we just need to dive into the code to find out. Click on the phone and then open the sources tab and you will see a JS file at https://dialup.kringlecastle.com/dialup.js has the source code for this challenge. As we take a look at the source code, there is what appears to be a large block of code approx midway down (starting at line 130) that evaluates a conditional, and then appends a fragment of a string to the `secret` var. For example
+
+```
+if (phase === 3) {
+    phase = 4;
+    playPhase();
+    secret += '3j2jc'
+  } else {
+    phase = 0;
+    playPhase();
+```
+
+Hmm so if `phase` is at 3, we increment `phase` and then add to the `secret` var. My guess is that `phase` is used to track how many correct sequences of sounds a player has input. As we scroll down more, we see more of the above style if/else blocks that continue to build out the `secret` string. The last phase appears to be 8, and the final if/else looks like 
+```
+trn.addEventListener('click', () => {
+  if (phase === 7) {
+    phase = 8;
+    secret += 'djjzz'
+    playPhase();
+  } else {
+    phase = 0;
+    playPhase();
+  }
+  sfx.trn.play();
+});
+```
+
+Putting together all the fragments of `secret` it seems the value is set to `secret = '39cajd3j2jc329dz4hhddhbvan3djjzz';` upon successful completion of the challenge, and the value of `phase` will be 8. Scrolling down further, on line 194 we see a `switch` statement which indeed begins to evaluate the value of `phase`. If we scroll down to the case for if `phase` equals 8 we can see the following:
+```
+case 8:
+      timeouts.push(setTimeout(() => {
+        sfx.updated.play();
+        timeouts.push(setTimeout(() => {
+          phase = 0;
+          playPhase();
+        }, 3500));
+        $.get("checkpass.php?i=" + secret + "&resourceId=" + resourceId, function( data ) {
+          try {
+            var result = JSON.parse(data);
+            if (result.success) {
+              __POST_RESULTS__({
+                hash: result.hash,
+                resourceId: result.resourceId,
+              });
+            }
+          } catch (err) {
+            console.log('error:', err);
+          }
+        });
+      }, 5000));
+      break;
+```
+Ah ok! So now we have everything we need! We need to pause execution <b>right before</b> the switch is evaluated, and set `secret` to '39cajd3j2jc329dz4hhddhbvan3djjzz' and `phase` to 8. Setting a breakpoint on line 194 we then click on the phone, execution pauses, we can then navigate to the console and paste in the following lines:
+```
+secret = '39cajd3j2jc329dz4hhddhbvan3djjzz';
+phase = 8;
+```
+
+Resume execution of the script and you should hear a neat voiceover saying the lights have been updated, as well as be presented with a notification that the challenge is complete!
+
 ## Redis RCE
 
 Difficulty - 
